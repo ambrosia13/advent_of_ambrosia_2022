@@ -89,7 +89,7 @@ fn parse_instructions(input: &str) -> Vec<Instruction> {
     instructions
 }
 
-fn execute_instruction(lists: &mut [Vec<char>], instruction: &Instruction) {
+fn execute_instruction(lists: &mut [Vec<char>], instruction: &Instruction, reverse: bool) {
     let from: usize = instruction.from as usize;
     let to: usize = instruction.to as usize;
 
@@ -99,17 +99,33 @@ fn execute_instruction(lists: &mut [Vec<char>], instruction: &Instruction) {
         chars.push(lists[from].remove(0));
     }
 
+    if reverse {
+        chars.reverse();
+    }
+
     for ch in chars {
         lists[to].insert(0, ch);
     }
 }
 
-pub fn part_one(input: &str) -> String {
+fn execute_instruction_9000(lists: &mut [Vec<char>], instruction: &Instruction) {
+    execute_instruction(lists, instruction, false);
+}
+
+fn execute_instruction_9001(lists: &mut [Vec<char>], instruction: &Instruction) {
+    execute_instruction(lists, instruction, true);
+}
+
+fn execute_all_instructions(input: &str, reverse: bool) -> String {
     let mut lists = parse_to_lists(input);
     let instructions = parse_instructions(input);
 
     for instruction in &instructions {
-        execute_instruction(&mut lists, instruction);
+        if reverse {
+            execute_instruction_9001(&mut lists, instruction);
+        } else {
+            execute_instruction_9000(&mut lists, instruction);
+        }
     }
 
     let mut stack_tops = String::new();
@@ -121,6 +137,14 @@ pub fn part_one(input: &str) -> String {
     stack_tops
 }
 
+pub fn part_one(input: &str) -> String {
+    execute_all_instructions(input, false)
+}
+
+pub fn part_two(input: &str) -> String {
+    execute_all_instructions(input, true)
+}
+
 pub fn test() {
     println!("Day 5:");
 
@@ -128,4 +152,5 @@ pub fn test() {
     let input = input.as_str();
 
     println!("\tPart one: {}", part_one(input));
+    println!("\tPart two: {}", part_two(input));
 }
